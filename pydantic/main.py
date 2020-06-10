@@ -865,6 +865,22 @@ def validate_model(  # noqa: C901 (ignore complexity)
                 f'you might need to call {cls_.__name__}.update_forward_refs().'
             )
 
+        if name == '__root__' and not(
+                isinstance(input_data, dict)
+                and '__root__' in input_data
+        ):
+            v_, errors_ = field.validate(input_data, values, loc=field.alias, cls=cls_)
+            # ignore any other fields the model contains
+            values = {}
+            errors = []
+            if isinstance(errors_, ErrorWrapper):
+                errors = [errors_]
+            elif isinstance(errors_, list):
+                errors = errors_
+            else:
+                values = {name: v_}
+            break
+
         value = input_data.get(field.alias, _missing)
         using_name = False
         if value is _missing and config.allow_population_by_field_name and field.alt_alias:

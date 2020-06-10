@@ -1531,3 +1531,32 @@ def test_hashable_optional(default):
 
     Model(v=None)
     Model()
+
+
+def test_validate_root():
+    class ListStr(BaseModel):
+        __root__: List[str]
+
+    value, fields_set, error = validate_model(
+        ListStr,
+        ['foo', 'bar'],
+    )
+    assert error is None
+
+    class DictStrStr(BaseModel):
+        __root__: Dict[str, str]
+
+    value, fields_set, error = validate_model(
+        DictStrStr,
+        {'foo': 'bar'},
+    )
+    assert error is None
+
+    class NestedDictStrStr(BaseModel):
+        key: DictStrStr
+
+    value, fields_set, error = validate_model(
+        NestedDictStrStr,
+        {'key': {'foo': 'bar'}},
+    )
+    assert error is None
